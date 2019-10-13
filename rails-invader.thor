@@ -50,40 +50,47 @@ class RailsInvader < Thor
   method_option :base_class, type: :string
   def code
     init
-    errors = []
-    emitter = ::RailsInvader::Code::Emitter::Emitter.new(interrogator, options)
-    emitter.klasses.each do |klass|
-      begin
-        puts klass.emit + "\n\n"
-      rescue ActiveRecord::StatementInvalid => e
-        errors << {klass: klass, exception: e}
-      end
-    end
-
-    unless errors.empty?
-      puts "Errors exist with tables:"
-      errors.each do |error|
-        puts error[:klass]
-        puts "\t #{error[:exception]}"
-      end
+    get_code(options)[:output].each do |klass|
+      puts klass
     end
   end
 
   desc "pry", "Open pry session"
+  method_option :ignore_tables, type: :string, default: []
   def pry
     init
+
+    get_code({})[:output].each do |klass|
+      eval klass
+    end
+
     binding.pry
-    puts "pry"
+    puts "Exiting"
   end
 
   private
+
+    def get_code(options)
+      errors = []
+      output = []
+      emitter = ::RailsInvader::Code::Emitter::Emitter.new(interrogator, options)
+      emitter.klasses.each do |klass|
+        begin
+          output << klass.emit
+        rescue ActiveRecord::StatementInvalid => e
+          errors << {klass: klass, exception: e}
+        end
+      end
+
+      {output: output, errors: errors}
+    end
 
     def get_tables
       tables = interrogator.tables
     end
 
     def interrogator
-      interrogator = ::RailsInvader::Database::Interrogator.new(ignore_tables: options[:ignore_tables])
+      interrogator = ::RailsInvader::Database::Interrogator.new(ignore_tables: @options[:ignore_tables])
     end
 
     def establish_db_connection
