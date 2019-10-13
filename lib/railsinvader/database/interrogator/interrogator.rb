@@ -8,8 +8,11 @@ module RailsInvader
 
       def columns(table)
         table_klass = klass table
+        table_klass.columns
+      end
 
-        table_klass.column_names
+      def column_names(table)
+        columns(table).map(&:name)
       end
 
       def klass(table)

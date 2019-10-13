@@ -18,12 +18,11 @@ class RailsInvader < Thor
   method_option :ignore_tables, type: :string
   def tables_columns
     init
-    binding.pry
     tables = interrogator.tables.reject{|table| options[:ignore_tables].include? table}
     tables.each do |table|
       puts table
       interrogator.columns(table).each do |column|
-        puts "\t#{column}"
+        puts "\t#{column.name}: #{column.type}"
       end
     end
   end
