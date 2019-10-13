@@ -2,9 +2,9 @@ require 'erb'
 
 module RailsInvader::Code::Emitter
   class Klass
-    def initialize(name, base_klass: ActiveRecord::Base)
+    def initialize(name, base_class: ActiveRecord::Base)
       @name = name
-      @base_klass = base_klass.to_s
+      @base_klass = base_class.to_s
     end
 
     def emit(template = nil)

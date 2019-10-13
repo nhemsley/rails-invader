@@ -47,10 +47,11 @@ class RailsInvader < Thor
 
   desc "code", "Display rails activerecord code to load database"
   method_option :ignore_tables, type: :string, default: []
+  method_option :base_class, type: :string
   def code
     init
     errors = []
-    emitter = ::RailsInvader::Code::Emitter::Emitter.new(interrogator)
+    emitter = ::RailsInvader::Code::Emitter::Emitter.new(interrogator, options)
     emitter.klasses.each do |klass|
       begin
         puts klass.emit + "\n\n"
