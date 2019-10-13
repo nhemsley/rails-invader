@@ -3,12 +3,13 @@ module RailsInvader
     class Interrogator
 
       attr_accessor :errors
-      def initialize
+      def initialize(ignore_tables: [])
+        @ignore_tables = ignore_tables
         @errors = {}
       end
 
       def tables
-        ActiveRecord::Base.connection.tables
+        ActiveRecord::Base.connection.tables.reject{|table| @ignore_tables.include? table}
       end
 
       def columns(table)

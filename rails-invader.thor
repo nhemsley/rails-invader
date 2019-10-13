@@ -8,23 +8,48 @@ require_relative 'lib/railsinvader/railsinvader'
 require_relative 'models/user'
 
 class RailsInvader < Thor
-  desc "tables", "Interrogate database tables"
+  desc "tables", "Display database tables"
   method_option :ignore_tables, type: :string, default: []
   def tables
     init
-    tables = interrogator.tables.reject{|table| options[:ignore_tables].include? table}
-    tables.each do |table|
+    get_tables.each do |table|
       puts table
     end
   end
 
-  desc "tables_columns", "Interrogate database tables and columns"
+  desc "tables_columns", "Display database tables and columns"
   method_option :ignore_tables, type: :string, default: []
   def tables_columns
     init
-    tables = interrogator.tables.reject{|table| options[:ignore_tables].include? table}
+    
     errors = []
-    tables.each do |table|
+    get_tables.each do |table|
+      begin
+        output = []
+        output << table
+        interrogator.columns(table).each do |column|
+          output << "\t#{column.name}: #{column.type}"
+        end
+        puts output.join("\n")
+      rescue ActiveRecord::StatementInvalid => e
+        errors << {table: table, exception: e}
+      end
+    end
+
+    unless errors.empty?
+      puts "Errors exist with tables:"
+      errors.each do |error|
+        puts error[:table]
+        puts "\t #{error[:exception]}"
+      end
+    end
+  end
+
+  desc "code", "Display rails activerecord code to load database"
+  method_option :ignore_tables, type: :string, default: []
+  def code
+    errors = []
+    get_tables.each do |table|
       begin
         output = []
         output << table
@@ -55,8 +80,12 @@ class RailsInvader < Thor
 
   private
 
+    def get_tables
+      tables = interrogator.tables
+    end
+
     def interrogator
-      interrogator = ::RailsInvader::Database::Interrogator.new
+      interrogator = ::RailsInvader::Database::Interrogator.new(ignore_tables: options[:ignore_tables])
     end
 
     def establish_db_connection
