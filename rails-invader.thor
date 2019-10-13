@@ -26,10 +26,12 @@ class RailsInvader < Thor
     errors = []
     tables.each do |table|
       begin
-        puts table
+        output = []
+        output << table
         interrogator.columns(table).each do |column|
-          puts "\t#{column.name}: #{column.type}"
+          output << "\t#{column.name}: #{column.type}"
         end
+        puts output.join("\n")
       rescue ActiveRecord::StatementInvalid => e
         errors << {table: table, exception: e}
       end
