@@ -48,17 +48,14 @@ class RailsInvader < Thor
   desc "code", "Display rails activerecord code to load database"
   method_option :ignore_tables, type: :string, default: []
   def code
+    init
     errors = []
-    get_tables.each do |table|
+    emitter = ::RailsInvader::Code::Emitter::Emitter.new(interrogator)
+    emitter.klasses.each do |klass|
       begin
-        output = []
-        output << table
-        interrogator.columns(table).each do |column|
-          output << "\t#{column.name}: #{column.type}"
-        end
-        puts output.join("\n")
+        puts klass.emit + "\n\n"
       rescue ActiveRecord::StatementInvalid => e
-        errors << {table: table, exception: e}
+        errors << {klass: klass, exception: e}
       end
     end
 
