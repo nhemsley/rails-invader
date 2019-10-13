@@ -62,7 +62,7 @@ class RailsInvader < Thor
     unless errors.empty?
       puts "Errors exist with tables:"
       errors.each do |error|
-        puts error[:table]
+        puts error[:klass]
         puts "\t #{error[:exception]}"
       end
     end
