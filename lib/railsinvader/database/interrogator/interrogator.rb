@@ -2,6 +2,11 @@ module RailsInvader
   module Database
     class Interrogator
 
+      attr_accessor :errors
+      def initialize
+        @errors = {}
+      end
+
       def tables
         ActiveRecord::Base.connection.tables
       end

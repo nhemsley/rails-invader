@@ -9,20 +9,37 @@ require_relative 'models/user'
 
 class RailsInvader < Thor
   desc "tables", "Interrogate database tables"
+  method_option :ignore_tables, type: :string, default: []
   def tables
-    init
-    puts interrogator.tables.inspect
-  end
-
-  desc "tables_columns", "Interrogate database tables and columns"
-  method_option :ignore_tables, type: :string
-  def tables_columns
     init
     tables = interrogator.tables.reject{|table| options[:ignore_tables].include? table}
     tables.each do |table|
       puts table
-      interrogator.columns(table).each do |column|
-        puts "\t#{column.name}: #{column.type}"
+    end
+  end
+
+  desc "tables_columns", "Interrogate database tables and columns"
+  method_option :ignore_tables, type: :string, default: []
+  def tables_columns
+    init
+    tables = interrogator.tables.reject{|table| options[:ignore_tables].include? table}
+    errors = []
+    tables.each do |table|
+      begin
+        puts table
+        interrogator.columns(table).each do |column|
+          puts "\t#{column.name}: #{column.type}"
+        end
+      rescue ActiveRecord::StatementInvalid => e
+        errors << {table: table, exception: e}
+      end
+    end
+
+    unless errors.empty?
+      puts "Errors exist with tables:"
+      errors.each do |error|
+        puts error[:table]
+        puts "\t #{error[:exception]}"
       end
     end
   end
@@ -31,7 +48,6 @@ class RailsInvader < Thor
   def pry
     init
     binding.pry
-    User.columns
     puts "pry"
   end
 
