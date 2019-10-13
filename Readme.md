@@ -1,4 +1,4 @@
-## Rails Invader
+# Rails Invader
 
 Invade a database installation! Interrogate it! Emit the things!
 
@@ -8,7 +8,7 @@ Handy for getting a rails console up quickly in an existing database. Nothing mu
 
 
 
-#TODO
+## TODO
 
 * Generate a rails project and insert the models
 * Ability to set the class template file
