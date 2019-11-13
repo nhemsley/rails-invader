@@ -1,7 +1,7 @@
 # config/database.yml
 host: 127.0.0.1
 adapter: mysql2
-port: 32793
-database: laravel
-username: laravel
-password: laravel
+port: 32957
+database: lamp
+username: lamp
+password: lamp

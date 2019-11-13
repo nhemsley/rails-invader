@@ -47,6 +47,7 @@ class RailsInvader < Thor
 
   desc "code", "Display rails activerecord code to load database"
   method_option :ignore_tables, type: :string, default: []
+  method_option :inheritance_column, type: :string, default: nil
   method_option :base_class, type: :string
   def code
     init
@@ -57,10 +58,11 @@ class RailsInvader < Thor
 
   desc "pry", "Open pry session"
   method_option :ignore_tables, type: :string, default: []
+  method_option :inheritance_column, type: :string, default: nil
   def pry
     init
 
-    get_code({})[:output].each do |klass|
+    get_code(options)[:output].each do |klass|
       eval klass
     end
 
